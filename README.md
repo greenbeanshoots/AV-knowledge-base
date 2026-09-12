@@ -13,7 +13,17 @@ npm run dev
 
 ## Audio note
 
-The practice mixer currently uses generated placeholder practice tones and exposes the expected channel workflow without bundling copyrighted stems. To add licensed stems later, add files under `public/audio/<scenario>/` and replace the generated source in `src/main.js` with `AudioBufferSourceNode` loading paths such as `./audio/muddy-acoustic/acoustic-guitar.wav`.
+Practice scenarios use real multitrack stems loaded through `AudioBufferSourceNode`. This repository intentionally does not include copyrighted or fabricated audio. Add appropriately licensed files under:
+
+```text
+public/audio/<scenario-id>/<stem-file>.wav
+```
+
+The expected filenames are defined in `src/data/scenarios.js`. If a file is missing, the app shows the failed path and disables playback rather than substituting a fake tone.
+
+See [AUDIO_ASSETS.md](./AUDIO_ASSETS.md) for the complete channel-by-channel manifest, naming convention, format guidance, and local testing instructions. `src/data/audioManifest.js` performs a startup `HEAD` check and reports every missing channel before the loader attempts to decode audio.
+
+Each stem is routed through gain, pan, EQ, compression, a per-channel analyser, and a shared master bus. The master analyser drives the live frequency/waveform canvas and level meter.
 
 ## Adding content
 
