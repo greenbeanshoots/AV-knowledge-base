@@ -1,6 +1,6 @@
-# Mixwise
+# Soundcheck
 
-Mixwise is a static, beginner-friendly worship audio learning app. It uses vanilla JavaScript and CSS so it can be deployed to GitHub Pages under a repository subpath without server-side routing.
+Soundcheck is a structured worship audio checklist application for youth and beginner audio teams. Checklist content is stored as validated data, while sessions and notes stay local to the browser.
 
 ## Run locally
 
@@ -9,26 +9,46 @@ npm install
 npm run dev
 ```
 
-`npm run build` creates the deployable `dist` folder. Publish that folder with GitHub Pages (for example via the official Pages artifact workflow). All app links and assets are relative.
+`npm run validate:content` checks IDs, references, types, titles, and ordering. `npm run build` creates the deployable `dist` folder. `npm run validate:build` checks that the generated HTML has relative, existing asset references. Hash routing keeps GitHub Pages repository subpaths working without server-side rewrites.
 
-## Audio note
+## GitHub Pages
 
-Practice scenarios use real multitrack stems loaded through `AudioBufferSourceNode`. This repository intentionally does not include copyrighted or fabricated audio. Add appropriately licensed files under:
+The existing workflow in `.github/workflows/deploy.yml` deploys the same `dist` output used by Docker. It runs content validation, builds with Vite, validates the generated artifact, and uploads the result through GitHub Pages. The relative Vite base and hash routes support repository project paths such as:
+
+```text
+https://<account>.github.io/<repository>/#/checklists
+```
+
+Refreshes remain on the hash route and do not require server-side rewrites.
+
+## Docker
+
+```bash
+docker compose up --build
+```
+
+Open `http://localhost:8080`. The production container serves the Vite output through Nginx on port 80 and exposes `/health` for the container health check.
+
+Docker runs the same `npm run build` command as GitHub Pages. Nginx serves the resulting static files, preserves the hash-based client routes, and returns 404 for missing files under `/audio/` instead of falling back to the application shell.
+
+## Future static hosting
+
+Firebase Hosting or another static host can deploy the `dist` folder without a second frontend implementation. Keep `base: "./"`, retain hash routing, and configure the host to serve `index.html` for the root document. Future Firebase Authentication, Firestore, Storage, or progress adapters should remain behind the existing repository and domain boundaries.
+
+## Checklist content
+
+Checklist definitions live in `src/content/checklists.js`. Instrument metadata and EQ/compression guidance live in `src/content/instruments.js` and `src/content/guidance.js`. Add stable IDs and preserve source-document order with `order` fields. Content validation runs during the app build and through `npm run validate:content`.
+
+## Audio practice
+
+The existing multitrack audio feature remains isolated and optional. It does not block checklist completion. Practice scenarios use real, licensed stems loaded through `AudioBufferSourceNode`. Add appropriately licensed files under:
 
 ```text
 public/audio/<scenario-id>/<stem-file>.wav
 ```
 
-The expected filenames are defined in `src/data/scenarios.js`. If a file is missing, the app shows the failed path and disables playback rather than substituting a fake tone.
-
-See [AUDIO_ASSETS.md](./AUDIO_ASSETS.md) for the complete channel-by-channel manifest, naming convention, format guidance, and local testing instructions. `src/data/audioManifest.js` performs a startup `HEAD` check and reports every missing channel before the loader attempts to decode audio.
-
-Each stem is routed through gain, pan, EQ, compression, a per-channel analyser, and a shared master bus. The master analyser drives the live frequency/waveform canvas and level meter.
-
-## Adding content
-
-Instrument guides are stored in the `instruments` object and practice scenarios are represented by the `scenario` branches in `practice()`. A future extraction into `src/data/` is straightforward as the content grows.
+See [AUDIO_ASSETS.md](./AUDIO_ASSETS.md) for the manifest and naming conventions.
 
 ## Data and privacy
 
-Selected stage channels and sound-check progress are stored only in this browser using localStorage. No account, backend, microphone permission, or external runtime service is required.
+Sessions, notes, and issue flags are stored only in this browser through `LocalChecklistRepository`. Settings provides JSON export, import, and reset. The repository interface is asynchronous so a future Firebase adapter can replace local storage without coupling Firebase APIs to presentation components.
