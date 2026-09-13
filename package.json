@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "validate:content": "node scripts/validate-content.mjs",
-    "validate:build": "node scripts/validate-build.mjs"
+    "validate:build": "node scripts/validate-build.mjs",
+    "firebase:deploy": "npm run validate:content && npm run build && npm run validate:build && firebase deploy --only hosting"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",

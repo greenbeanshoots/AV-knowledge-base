@@ -39,6 +39,21 @@ Docker runs the same `npm run build` command as GitHub Pages. Nginx serves the r
 
 Firebase Hosting or another static host can deploy the `dist` folder without a second frontend implementation. Keep `base: "./"`, retain hash routing, and configure the host to serve `index.html` for the root document. Future Firebase Authentication, Firestore, Storage, or progress adapters should remain behind the existing repository and domain boundaries.
 
+Firebase Hosting demo: [https://sunday-soundcheck.web.app](https://sunday-soundcheck.web.app)
+
+## Firebase Hosting
+
+The repository includes `firebase.json` for Hosting. Authenticate with the Firebase CLI, select or create a Firebase project, then associate its project ID locally:
+
+```bash
+npm install --global firebase-tools
+firebase login
+firebase use --add
+npm run firebase:deploy
+```
+
+The deploy command validates checklist content, builds the shared `dist` output, validates generated assets, and deploys only Hosting. Do not commit Firebase credentials or private configuration files. Hash routing works on Firebase Hosting without a rewrite because the route state is stored in the URL fragment.
+
 ## Checklist content
 
 Checklist definitions live in `src/content/checklists.js`. Instrument metadata and EQ/compression guidance live in `src/content/instruments.js` and `src/content/guidance.js`. Add stable IDs and preserve source-document order with `order` fields. Content validation runs during the app build and through `npm run validate:content`.
