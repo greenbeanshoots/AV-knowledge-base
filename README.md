@@ -13,6 +13,8 @@ npm run dev
 
 ## GitHub Pages
 
+Public demo: [https://greenbeanshoots.github.io/AV-knowledge-base/](https://greenbeanshoots.github.io/AV-knowledge-base/)
+
 The existing workflow in `.github/workflows/deploy.yml` deploys the same `dist` output used by Docker. It runs content validation, builds with Vite, validates the generated artifact, and uploads the result through GitHub Pages. The relative Vite base and hash routes support repository project paths such as:
 
 ```text
@@ -20,6 +22,8 @@ https://<account>.github.io/<repository>/#/checklists
 ```
 
 Refreshes remain on the hash route and do not require server-side rewrites.
+
+In the repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions**. If Pages is set to deploy from the `main` branch root instead, GitHub serves the development `index.html` and attempts to load `src/main.jsx` as `text/jsx`, which will not run in production. After changing the source, use the `Deploy to GitHub Pages` workflow or push to `main`.
 
 ## Docker
 
